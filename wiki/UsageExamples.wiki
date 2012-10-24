@@ -1,0 +1,27 @@
+#summary Source code snippets documenting the usage of the most important new functions
+
+=Usage examples=
+==Alternative for strcpy and  strncpy==
+===Insecure code example===
+{{{
+char str1[10];
+strcpy(str1, "LOOOOONNNNNNNNNNNNNNNNNG"); // causes a buffer overflow
+}}}
+
+===Replacement===
+{{{
+errno_t strcpy_s(char *s1,rsize_t s1max,const char *s2)
+}}}
+
+ * allows specifying the size of destination buffer `s1`
+ * writes at maximum `s1max-1` bytes and will always terminate `s1` with a 0-byte.
+ * If the buffer is too small
+   * the constraint handler is called
+   * `s1[0]` is set to '\0' if `s1!=NULL` and `s1max >0`
+
+===Secure code example===
+{{{
+char str1[10];
+strcpy_s(str1, sizeof(str1), "LOOOOONNNNNNNNNNNNNNNNNG"); 
+//no buffer overflow, instead constraint handler will be called, str1[0] set to '\0'
+}}}

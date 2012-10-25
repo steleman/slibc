@@ -21,6 +21,7 @@
 #include <cppunit/TestResultCollector.h>
 #include <cppunit/TestRunner.h>
 #include <cppunit/BriefTestProgressListener.h>
+#include <cppunit/CompilerOutputter.h>
 
 int main (int argc, char* argv[])
 {

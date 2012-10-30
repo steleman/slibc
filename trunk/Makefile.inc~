@@ -11,9 +11,6 @@ CPPUNIT_PATH=/usr/include/cppunit
 SLIBC_LIB=libslibc.a
 SLIBC_LIB_CPP=libslibc++.a
 
-SLIBC_LIB_SH=libslibc.so
-SLIBC_LIB_CPP_SH=libslibc++.so
-
 libdir.x86_64 = /usr/lib64
 libdir.i686   = /usr/lib
 

@@ -2,7 +2,7 @@ include ../Makefile.inc
 
 .PHONY: all clean
 
-all: $(SLIBC_LIB) $(SLIBC_LIB_CPP)
+all: $(SLIBC_LIB) $(SLIBC_LIB_CPP) libslibc.so libslibc++.so
 
 SLIBC_OBJS=slibc.o stdio_fmt_s.o string_s.o stdio_s.o stdlib_s.o \
 	time_s.o stdio_ext_s.o \
@@ -18,10 +18,16 @@ $(SLIBC_LIB): $(SLIBC_OBJS)
 $(SLIBC_LIB_CPP): $(SLIBC_OBJS_CPP)
 	ar rcs $(SLIBC_LIB_CPP) $(SLIBC_OBJS_CPP)
 
+libslibc.so: $(SLIBC_OBJS)
+	gcc -shared -o libslibc.so $(SLIBC_OBJS)
+        
+libslibc++.so: $(SLIBC_OBJS_CPP)
+	gcc -shared -o libslibc++.so $(SLIBC_OBJS_CPP)
+
 %_cpp.o: %.c
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 %.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean: 
-	rm -f *.o *.gcda *.gcno *.gcov $(SLIBC_LIB) $(SLIBC_LIB_CPP)
+	rm -f *.so *.o *.gcda *.gcno *.gcov $(SLIBC_LIB) $(SLIBC_LIB_CPP)

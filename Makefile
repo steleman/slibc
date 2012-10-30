@@ -11,9 +11,15 @@ archive:
 	cd ./gen/ && tar czf slibc-1.tar.gz slibc-1/
 	rm -rf ./gen/slibc-1
 
-install: libsc.a test ow
+install_devel: libsc.a test ow
 	cp src/$(SLIBC_LIB) $(DESTDIR)$(libdir)/$(SLIBC_LIB)
+	cp src/$(SLIBC_LIB_CPP) $(DESTDIR)$(libdir)/$(SLIBC_LIB_CPP)
+	cp -r include/slibc/ $(DESTDIR)/include/
 
+install: libsc.a
+	cp src/$(SLIBC_LIB_SH) $(DESTDIR)$(libdir)/$(SLIBC_LIB_SH)
+	cp src/$(SLIBC_LIB_CPP_SH) $(DESTDIR)$(libdir)/$(SLIBC_LIB_CPP_SH)	
+	
 test_slibc: libsc.a
 	$(MAKE) -C tests_slibc/
 

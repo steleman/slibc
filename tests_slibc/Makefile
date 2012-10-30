@@ -9,8 +9,8 @@ TEST_OBJS=TestString.o TestStdioFmt.o TestStdlib.o Launcher.o \
 
 all: $(EXE)
 
-$(EXE): $(TEST_OBJS) ../src/$(SLIBC_LIB_CPP)
-	g++ $(CXXFLAGS) -o $(EXE) $(TEST_OBJS) -L../src/ -L${CPPUNIT_PATH}/lib -lstdc++ -lcppunit -ldl -lslibc++
+$(EXE): $(TEST_OBJS) ../src/$(SLIBC_LIB_SH)
+	g++ $(CXXFLAGS) -o $(EXE) $(TEST_OBJS) -I../ -L../src/ -L${CPPUNIT_PATH}/lib -lstdc++ -lcppunit -ldl -lslibc++
 
 TestStdioFmt.o: TestStdioFmt.cpp
 	$(CXX) $(CXXFLAGS) -Wno-format-extra-args  -Wno-format -Wno-uninitialized -I../ -c -o $@ $<
@@ -18,8 +18,8 @@ TestStdioFmt.o: TestStdioFmt.cpp
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -I../ -c -o $@ $<
 
-test: $(EXE)
-	./$(EXE)
+test: $(EXE) ../src/$(SLIBC_LIB_SH)
+	sh runtest.sh
 
 clean: 
 	rm -f *.o *.gcda *.gcno *.gcov $(EXE)

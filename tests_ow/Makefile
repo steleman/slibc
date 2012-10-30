@@ -1,7 +1,7 @@
 include ../Makefile.inc
 
-CFLAGS +=-I../include/slibc -Wno-format -Wno-format-extra-args -D__UNIX__ 
-LDLIBS +=-L../src/ -lslibc
+CFLAGS += -I../include/slibc -Wno-format -Wno-format-extra-args -D__UNIX__ 
+LDLIBS += -L../src/ -lslibc
 
 .PHONY: all clean
 
@@ -12,23 +12,24 @@ OW_TEST_EXES_W:=  safembyt safewfmt.c safwtime.c
 
 all: $(OW_TEST_EXES)
 
-safefmt:  ../src/$(SLIBC_LIB)
-safestr:  ../src/$(SLIBC_LIB)
-safefile: ../src/$(SLIBC_LIB)
-safetime: ../src/$(SLIBC_LIB)
-safeio:   ../src/$(SLIBC_LIB)
+safefmt:  ../src/$(SLIBC_LIB_SH)
+safestr:  ../src/$(SLIBC_LIB_SH)
+safefile: ../src/$(SLIBC_LIB_SH)
+safetime: ../src/$(SLIBC_LIB_SH)
+safeio:   ../src/$(SLIBC_LIB_SH)
 
 test: $(OW_TEST_EXES)
-	@echo "\n*********************FILE tests**************************\n"
-	-./safefile
-	@echo "\n*********************FMT TESTS**************************\n"
-	-./safefmt
-	@echo "\n*********************IO TESTS**************************\n"
-	-./safeio
-	@echo "\n*********************STR TESTS**************************\N"
-	-./safestr
-	@echo "\n*********************Time TESTS**************************\n"
-	-./safetime
-
+#	@echo "\n*********************FILE tests**************************\n"
+#	-./safefile
+#	@echo "\n*********************FMT TESTS**************************\n"
+#	-./safefmt
+#	@echo "\n*********************IO TESTS**************************\n"
+#	-./safeio
+#	@echo "\n*********************STR TESTS**************************\N"
+#	-./safestr
+#	@echo "\n*********************Time TESTS**************************\n"
+#	-./safetime
+	sh runtest.sh
+	
 clean: 
 	rm -f $(OW_TEST_EXES) *.o

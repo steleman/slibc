@@ -16,7 +16,7 @@ install_devel: libsc.a test ow
 	cp src/$(SLIBC_LIB_CPP) $(DESTDIR)$(libdir)/$(SLIBC_LIB_CPP)
 	cp -r include/slibc/ $(DESTDIR)/include/
 
-install: libsc.a
+install: libsc.a test ow
 	cp src/$(SLIBC_LIB_SH) $(DESTDIR)$(libdir)/$(SLIBC_LIB_SH)
 	cp src/$(SLIBC_LIB_CPP_SH) $(DESTDIR)$(libdir)/$(SLIBC_LIB_CPP_SH)	
 	

@@ -170,7 +170,6 @@ int TestFile_ReOpen( TestFile *cur_test, const char *cur_mode )
 
     if( cur_test->fp != NULL ) {
         fclose( cur_test->fp );
-        VERIFY( !ferror( cur_test->fp ) );
         rc = fopen_s( &(cur_test->fp), cur_test->filename, cur_mode );
         VERIFY( rc == 0 );
         VERIFY( cur_test->fp != NULL );
@@ -190,7 +189,6 @@ int TestFile_Destroy( TestFile *cur_test )
     /* Remove the test file */
     if( cur_test->fp != NULL ) {
         fclose( cur_test->fp );
-        VERIFY( !ferror( cur_test->fp ) );
         EXPECT( remove( cur_test->filename ) == 0 );
     }
 

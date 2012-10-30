@@ -12,11 +12,14 @@ archive:
 	rm -rf ./gen/slibc-1
 
 install_devel: libsc.a test ow
+	mkdir -p $(DESTDIR)$(libdir)/
 	cp src/$(SLIBC_LIB) $(DESTDIR)$(libdir)/$(SLIBC_LIB)
 	cp src/$(SLIBC_LIB_CPP) $(DESTDIR)$(libdir)/$(SLIBC_LIB_CPP)
-	cp -r include/slibc/ $(DESTDIR)/include/
+	mkdir -p $(DESTDIR)/usr/include/slibc/
+	cp -r include/slibc/* $(DESTDIR)/usr/include/slibc/
 
 install: libsc.a test ow
+	mkdir -p $(DESTDIR)$(libdir)/
 	cp src/$(SLIBC_LIB_SH) $(DESTDIR)$(libdir)/$(SLIBC_LIB_SH)
 	cp src/$(SLIBC_LIB_CPP_SH) $(DESTDIR)$(libdir)/$(SLIBC_LIB_CPP_SH)	
 	

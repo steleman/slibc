@@ -14,9 +14,6 @@ archive:
 	rm -rf ./gen/$(ARCHIVE_NAME)
 
 install_devel: test
-	mkdir -p $(DESTDIR)$(libdir)/
-	cp src/$(SLIBC_LIB) $(DESTDIR)$(libdir)/$(SLIBC_LIB)
-	cp src/$(SLIBC_LIB_CPP) $(DESTDIR)$(libdir)/$(SLIBC_LIB_CPP)
 	mkdir -p $(DESTDIR)/usr/include/slibc/
 	cp -r include/slibc/* $(DESTDIR)/usr/include/slibc/
 

@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 }
 }}}
  # When compiling include the SLIBC header directory (`include/slibc`) in your compiler's include path (e.g., add `-I~/slibc/include/slibc`). Remember that Annex K adds functions to the standard C library by extending existing header files. SLIBC makes the fact that it's a third-party library (instead of being part of GLIBC) as transparent as possible to your program. To use `strcpy_s`, simply include `string.h` in your program. It is important that your compiler searches in the slibc header directory first.
- # Link your program to Slibc. Slibc is built as a shared library. Either add `-lslibc` or `-lslibc++` (for the C++ version) to your linking step. Additionally, you might have to add the location of slibc's so-files to your  Linker search path by adding `-L`. 
+ # Link your program to Slibc. Slibc is built as a shared library. Either add `-lslibc` or `-lslibc++` (for the C++ version) to your linking step. Additionally, you might have to add the location of slibc's so-files to your  Linker search path by adding `-L` (e.g., `-L../src/`). 
  # Run your program. If the Slibc shared object file cannot be found, you have to adjust the environment variable `LD_LIBRARY_PATH`.
 
 

@@ -1,3 +1,4 @@
+include ../VERSION
 include ../Makefile.inc
 
 .PHONY: all test clean
@@ -9,8 +10,8 @@ TEST_OBJS=TestString.o TestStdioFmt.o TestStdlib.o Launcher.o \
 
 all: $(EXE)
 
-$(EXE): $(TEST_OBJS) ../src/$(SLIBC_LIB_SH)
-	g++ $(CXXFLAGS) -o $(EXE) $(TEST_OBJS) -I../ -L../src/ -L${CPPUNIT_PATH}/lib -lstdc++ -lcppunit -ldl -lslibc++
+$(EXE): $(TEST_OBJS) ../src/$(SLIBC_LIB_CPP_SO)
+	$(CXX) $(CXXFLAGS) -o $(EXE) $(TEST_OBJS) -I../ -L../src/ -L${CPPUNIT_PATH}/lib -lstdc++ -lcppunit -ldl -lslibc++
 
 TestStdioFmt.o: TestStdioFmt.cpp
 	$(CXX) $(CXXFLAGS) -Wno-format-extra-args  -Wno-format -Wno-uninitialized -I../ -c -o $@ $<
@@ -18,7 +19,7 @@ TestStdioFmt.o: TestStdioFmt.cpp
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -I../ -c -o $@ $<
 
-test: $(EXE) ../src/$(SLIBC_LIB_SH)
+test: $(EXE) ../src/$(SLIBC_LIB_CPP_SO)
 	sh runtest.sh
 
 clean: 

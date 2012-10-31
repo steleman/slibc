@@ -1,3 +1,4 @@
+include ../VERSION
 include ../Makefile.inc
 
 CFLAGS += -I../include/slibc -Wno-format -Wno-format-extra-args -D__UNIX__ 
@@ -12,11 +13,11 @@ OW_TEST_EXES_W:=  safembyt safewfmt.c safwtime.c
 
 all: $(OW_TEST_EXES)
 
-safefmt:  ../src/$(SLIBC_LIB_SH)
-safestr:  ../src/$(SLIBC_LIB_SH)
-safefile: ../src/$(SLIBC_LIB_SH)
-safetime: ../src/$(SLIBC_LIB_SH)
-safeio:   ../src/$(SLIBC_LIB_SH)
+safefmt:  ../src/$(SLIBC_LIB_SO)
+safestr:  ../src/$(SLIBC_LIB_SO)
+safefile: ../src/$(SLIBC_LIB_SO)
+safetime: ../src/$(SLIBC_LIB_SO)
+safeio:   ../src/$(SLIBC_LIB_SO)
 
 test: $(OW_TEST_EXES)
 #	@echo "\n*********************FILE tests**************************\n"
@@ -30,6 +31,6 @@ test: $(OW_TEST_EXES)
 #	@echo "\n*********************Time TESTS**************************\n"
 #	-./safetime
 	sh runtest.sh
-	
+
 clean: 
 	rm -f $(OW_TEST_EXES) *.o

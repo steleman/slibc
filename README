@@ -47,8 +47,13 @@ Use SLIBC with your program
        To use strcpy_s, simply include string.h in your program. It is important 
        that your compiler searches in the slibc header directory first.
 
-    3) Statically link your program to SLIBC. 
-       Either add -lslibc or -lslibc++ (for the C++ version) to your linking step.. 
+    3) Link your program to Slibc. Slibc is built as a shared library. 
+       Either add -lslibc or -lslibc++ (for the C++ version) to your linking step. 
+       Additionally, you might have to add the location of slibc's so-files to your Linker 
+       search path by adding -L (e.g., -L../src/).
+
+    4) Run your program. If the Slibc shared object file cannot be found, you have to adjust 
+       the environment variable LD_LIBRARY_PATH. 
 
 
 Directory layout

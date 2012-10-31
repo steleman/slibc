@@ -781,6 +781,13 @@ int main( int argc, char *argv[] )
 #else
     con = fopen( CONSOLE_OUT, "w" );
 #endif
+	if (! con)
+	{
+		fprintf(stderr, "Could not open " CONSOLE_OUT "\n");
+		fprintf(stderr, "Exiting.\n");
+		fflush(stderr);
+		exit(1);
+	}
     VERIFY( con != NULL );
 
     /***********************************************************************/

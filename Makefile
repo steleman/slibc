@@ -1,15 +1,17 @@
+include VERSION
 include Makefile.inc
 
 .PHONY: all doc clean_doc clean test slibc tests_slibc tests_ow
 
 all: slibc
 
+ARCHIVE_NAME = slibc-$(VER_MAJOR).$(VER_MINOR).$(VER_RELEASE)
 archive:
 	rm -rf ./gen/
 	mkdir ./gen/
-	svn export ./ ./gen/slibc-1
-	cd ./gen/ && tar czf slibc-1.tar.gz slibc-1/
-	rm -rf ./gen/slibc-1
+	svn export ./ ./gen/$(ARCHIVE_NAME)
+	cd ./gen/ && tar czf $(ARCHIVE_NAME).tar.gz $(ARCHIVE_NAME)/
+	rm -rf ./gen/$(ARCHIVE_NAME)
 
 install_devel: test
 	mkdir -p $(DESTDIR)$(libdir)/

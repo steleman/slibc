@@ -92,7 +92,7 @@ typedef int (*__compar_fn_t_s) (__const void *, __const void *, void *context);
    smaller partition.  This *guarantees* no more than log (total_elems)
    stack size is needed (actually O(1) in this case)!  */
 
-errno_t
+SLIBC_INTERNAL errno_t
 gnu_qsort_s (void *const pbase, size_t total_elems, rsize_t size,
 			 __compar_fn_t_s cmp, void *context)
 {

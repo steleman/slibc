@@ -212,11 +212,11 @@ struct ptrs_to_free
    Return the number of assignments made, or -1 for an input error.  */
 #ifdef COMPILE_WSCANF
 # error "Not adapated to _s yet."
-int
+SLIBC_INTERNAL int
 gnu_vfwscanf_s (_IO_FILE *s, const wchar_t *format, _IO_va_list argptr,
 			  int *errp)
 #else
-	int
+	SLIBC_INTERNAL int
 	gnu_vfscanf_s (_IO_FILE *s, const char *format, _IO_va_list argptr,
 				   int *errp)
 #endif

@@ -25,7 +25,7 @@
 
 /* Perform a binary search for KEY in BASE which has NMEMB elements
    of SIZE bytes each.	The comparisons are done by (*COMPAR)().  */
-void *
+SLIBC_INTERNAL void *
 gnu_bsearch_s (const void *key, const void *base, rsize_t nmemb, rsize_t size,
 			   int (*compar) (const void *, const void *, void *context),
 			   void *context)

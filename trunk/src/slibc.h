@@ -93,7 +93,7 @@ void slibc_call_constraint_handler(const char *msg,
 	  ((s2 < s1)  && ((char *)s2 + s2_size -1 >= (char *)s1) && ((char *)s2 + s2_size -1 < (char *)s1 + s1_size) ))
 
 
-
+#define SLIBC_INTERNAL __attribute__((visibility ("hidden")))
 
 
 

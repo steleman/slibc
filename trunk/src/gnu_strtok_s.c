@@ -37,7 +37,7 @@ static char *
 strpbrk_s (const char *s, rsize_t * restrict smax, const char *accept);
 
 
-char *
+SLIBC_INTERNAL char *
 gnu_strtok_s (char * restrict s1,
 			  rsize_t * restrict s1max,
 			  const char * restrict s2,

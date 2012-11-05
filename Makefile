@@ -13,14 +13,14 @@ archive:
 	cd ./gen/ && tar czf $(ARCHIVE_NAME).tar.gz $(ARCHIVE_NAME)/
 	rm -rf ./gen/$(ARCHIVE_NAME)
 
-install_devel: test
-	mkdir -p $(DESTDIR)/usr/include/slibc/
-	cp -r include/slibc/* $(DESTDIR)/usr/include/slibc/
+install_devel:
+	install -d $(DESTDIR)/usr/include/slibc/
+	install -D include/slibc/* $(DESTDIR)/usr/include/slibc/
 
-install: test
-	mkdir -p $(DESTDIR)$(libdir)/
-	cp src/$(SLIBC_LIB_SH) $(DESTDIR)$(libdir)/$(SLIBC_LIB_SH)
-	cp src/$(SLIBC_LIB_CPP_SH) $(DESTDIR)$(libdir)/$(SLIBC_LIB_CPP_SH)	
+install: test install_devel
+	install -d $(DESTDIR)$(libdir)/
+	install -D src/$(SLIBC_LIB_SH) $(DESTDIR)$(libdir)/$(SLIBC_LIB_SH)
+	install -D src/$(SLIBC_LIB_CPP_SH) $(DESTDIR)$(libdir)/$(SLIBC_LIB_CPP_SH)	
 
 # build targets
 tests_slibc: slibc

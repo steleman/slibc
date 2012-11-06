@@ -14,12 +14,12 @@ archive:
 	rm -rf ./gen/$(ARCHIVE_NAME)
 
 install_devel:
-	install -d $(DESTDIR)/usr/include/slibc/
-	install -D include/slibc/* $(DESTDIR)/usr/include/slibc/
+	install -d $(DESTDIR)$(includedir)/slibc/
+	install -D include/slibc/* $(DESTDIR)$(includedir)/slibc/
 
 install_doc: doc
-	install -d $(DESTDIR)/usr/share/man/man3/
-	install -m 444 -D doc/man/man3/* $(DESTDIR)/usr/share/man/man3/
+	install -d $(DESTDIR)$(mandir)/man3/
+	install -m 444 -D doc/man/man3/* $(DESTDIR)$(mandir)/man3/
 
 install: test install_devel install_doc
 	install -d $(DESTDIR)$(libdir)/

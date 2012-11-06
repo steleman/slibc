@@ -26,6 +26,6 @@ SLIBC_LIB_CPP_SONAME=lib$(SLIBC_NAME_CPP).so.$(VER_MAJOR)
 libdir.x86_64 = /usr/lib64
 libdir.i686   = /usr/lib
 
-MACHINE := $(shell uname -m)
+#MACHINE := $(shell uname -m)
 
-libdir = $(libdir.$(MACHINE))
+#libdir = $(libdir.$(MACHINE))

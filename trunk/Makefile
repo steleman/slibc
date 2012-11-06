@@ -17,7 +17,10 @@ install_devel:
 	install -d $(DESTDIR)/usr/include/slibc/
 	install -D include/slibc/* $(DESTDIR)/usr/include/slibc/
 
-install: test install_devel
+install_doc: doc
+	install -D doc/man/man3/* $(DESTDIR)/usr/share/man/man3/
+
+install: test install_devel install_doc
 	install -d $(DESTDIR)$(libdir)/
 	install -D src/$(SLIBC_LIB_SH) $(DESTDIR)$(libdir)/$(SLIBC_LIB_SH)
 	install -D src/$(SLIBC_LIB_CPP_SH) $(DESTDIR)$(libdir)/$(SLIBC_LIB_CPP_SH)	

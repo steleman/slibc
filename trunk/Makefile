@@ -18,6 +18,7 @@ install_devel:
 	install -D include/slibc/* $(DESTDIR)/usr/include/slibc/
 
 install_doc: doc
+	install -d $(DESTDIR)/usr/share/man/man3/
 	install -D doc/man/man3/* $(DESTDIR)/usr/share/man/man3/
 
 install: test install_devel install_doc

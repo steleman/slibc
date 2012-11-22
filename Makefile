@@ -24,7 +24,6 @@ install_doc: doc
 install: test install_devel install_doc
 	install -d $(DESTDIR)$(libdir)/
 	install -D src/$(SLIBC_LIB_SH) $(DESTDIR)$(libdir)/$(SLIBC_LIB_SH)
-	install -D src/$(SLIBC_LIB_CPP_SH) $(DESTDIR)$(libdir)/$(SLIBC_LIB_CPP_SH)	
 
 # build targets
 tests_slibc: slibc

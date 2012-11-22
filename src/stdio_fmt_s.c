@@ -437,11 +437,6 @@ extern int gnu_vfscanf_s (_IO_FILE *s, const char *format,
 int vfscanf_s(FILE * restrict stream,
 			  const char * restrict format, va_list arg)
 {
-	if(stream == NULL || format == NULL || arg == NULL)
-	{
-		RUNTIME_CONSTRAINT_HANDLER();
-		return EOF;
-	}
 	if(!stream || !format || !arg)
 	{
 		RUNTIME_CONSTRAINT_HANDLER();

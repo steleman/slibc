@@ -30,10 +30,7 @@
 #endif
 
 /* C++ needs to know that types and declarations are C, not C++.  */
-// we build the slibc both as a c and as a c++ library
-// thus, we don't need this.
-//#ifdef  __cplusplus
-#if 0
+#ifdef  __cplusplus
 # define SLIBC_BEGIN_DECLS  extern "C" {
 # define SLIBC_END_DECLS    }
 #else

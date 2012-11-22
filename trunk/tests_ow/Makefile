@@ -14,10 +14,16 @@ OW_TEST_EXES_W:=  safembyt safewfmt.c safwtime.c
 all: $(OW_TEST_EXES)
 
 safefmt:  ../src/$(SLIBC_LIB_SO)
+	$(CC) $(CFLAGS) -I../ -o $@ safefmt.c $(LDLIBS)
 safestr:  ../src/$(SLIBC_LIB_SO)
+	$(CC) $(CFLAGS) -I../ -o $@ safestr.c $(LDLIBS)
 safefile: ../src/$(SLIBC_LIB_SO)
+	$(CC) $(CFLAGS) -I../ -o $@ safefile.c $(LDLIBS)
 safetime: ../src/$(SLIBC_LIB_SO)
+	$(CC) $(CFLAGS) -I../ -o $@ safetime.c $(LDLIBS)
 safeio:   ../src/$(SLIBC_LIB_SO)
+	$(CC) $(CFLAGS) -I../ -o $@ safeio.c $(LDLIBS)
+
 
 test: $(OW_TEST_EXES)
 #	@echo "\n*********************FILE tests**************************\n"

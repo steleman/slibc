@@ -24,6 +24,10 @@
 #include <printf.h>
 
 
+#define FORMAT_STR_CHECK(format) \
+	(format == NULL || format_str_has_n_spec(format))
+
+
 ////////////////////////////////////////////////////////////////////////////////
 ///	  Checks that the supplied string arguments are
 ///		  different from Null and do not overlap with
@@ -35,8 +39,8 @@
 ///	  @return 0 in case of success, 
 ///           1 means one of the arguments is null etc.
 ////////////////////////////////////////////////////////////////////////////////
-int validate_str_args(const char *s1, rsize_t s1max,
-					  const char* restrict format, va_list arg)
+static int validate_str_args(const char *s1, rsize_t s1max,
+							 const char* restrict format, va_list arg)
 {
 	unsigned argtypes_max = strlen (format) / 2 * sizeof (int);
 	int *argtypes = (int *) alloca (argtypes_max);
@@ -96,7 +100,7 @@ int validate_str_args(const char *s1, rsize_t s1max,
 ///
 ///	  @return 1 if a %n conversion specifier exists, 0 otherwise
 ////////////////////////////////////////////////////////////////////////////////
-int format_str_has_n_spec(const char *	format)
+static int format_str_has_n_spec(const char *	format)
 {
 	unsigned argtypes_max = strlen (format) / 2 * sizeof (int);
 	int *argtypes = (int *) alloca (argtypes_max);
@@ -122,34 +126,20 @@ int vsprintf_s(char * restrict s,
 {
 	int ret = 0;
 
-	if (!s || n == 0 || n >= RSIZE_MAX)
-	{
-		RUNTIME_CONSTRAINT_HANDLER();
-		return 0;
-	}
+	_CONSTRAINT_VIOLATION_IF((s == NULL || n == 0 || n >= RSIZE_MAX),
+							 EINVAL,
+							 0);
 
-	if ( !format)
-	{
-		s[0] = 0;
-		RUNTIME_CONSTRAINT_HANDLER();
-		return 0;
-	}
+	_CONSTRAINT_VIOLATION_CLEANUP_IF(FORMAT_STR_CHECK(format),
+									 s[0] = 0,
+									 EINVAL,
+									 0);
 
-	if (format_str_has_n_spec(format))
-	{
-		s[0] = 0;
-		RUNTIME_CONSTRAINT_HANDLER();
-		return 0;
-	}
+	_CONSTRAINT_VIOLATION_CLEANUP_IF(validate_str_args(s, n, format, arg), 
+									 s[0] = 0,
+									 EINVAL,
+									 0);
 
-	/// no %s replacement may be null, additionally
-	/// check that %s replacements do not overlap with mem region s
-	if (validate_str_args(s, n, format, arg))
-	{
-		s[0] = 0;
-		RUNTIME_CONSTRAINT_HANDLER();
-		return 0;
-	}
 
 	///	Is buffer s with length n sufficient?
 	{
@@ -158,12 +148,13 @@ int vsprintf_s(char * restrict s,
 		ret = vsnprintf(NULL, 0, format, arg2);
 		va_end(arg2);
 	}
-	if (ret < 0 || (unsigned)ret+1 > n)
-	{
-		s[0] = 0;
-		RUNTIME_CONSTRAINT_HANDLER();
-		return 0;
-	}
+
+#define TARGET_IS_SUFFICIENTLY_LARGE (ret < 0 || (unsigned)ret+1 > n)
+
+	_CONSTRAINT_VIOLATION_CLEANUP_IF(TARGET_IS_SUFFICIENTLY_LARGE,
+									 s[0] = 0,
+									 EINVAL,
+									 0);
 
 	return vsnprintf(s, n, format, arg);
 }
@@ -172,35 +163,21 @@ int vsprintf_s(char * restrict s,
 int vsnprintf_s(char * restrict s, rsize_t n,
 				const char * restrict format,
 				va_list arg)
-{	 
-	if (!s || n == 0 || n >= RSIZE_MAX)
-	{
-		RUNTIME_CONSTRAINT_HANDLER();
-		return -1;
-	}
+{
+	_CONSTRAINT_VIOLATION_IF((s == NULL || n == 0 || n >= RSIZE_MAX),
+							 EINVAL,
+							 -1);
 
-	if ( !format)
-	{
-		s[0] = 0;
-		RUNTIME_CONSTRAINT_HANDLER();
-		return -1;
-	}
+	_CONSTRAINT_VIOLATION_CLEANUP_IF(FORMAT_STR_CHECK(format),
+									 s[0] = 0,
+									 EINVAL,
+									 -1);
 
-	if (format_str_has_n_spec(format))
-	{
-		s[0] = 0;
-		RUNTIME_CONSTRAINT_HANDLER();
-		return -1;
-	}
+	_CONSTRAINT_VIOLATION_CLEANUP_IF(validate_str_args(s, n, format, arg), 
+									 s[0] = 0,
+									 EINVAL,
+									 -1);
 
-	/// no %s replacement may be null, additionally
-	/// check that %s replacements do not overlap with mem region s
-	if (validate_str_args(s, n, format, arg))
-	{
-		s[0] = 0;
-		RUNTIME_CONSTRAINT_HANDLER();
-		return -1;
-	}
 
 	return vsnprintf(s, n, format, arg);
 }
@@ -239,24 +216,18 @@ int snprintf_s(char * restrict s,
 int vfprintf_s(FILE * restrict stream,
 			   const char * restrict format, va_list arg)
 {
-	if (!stream || !format)
-	{
-		RUNTIME_CONSTRAINT_HANDLER();
-		return -1;
-	}
+	_CONSTRAINT_VIOLATION_IF(stream == NULL,
+							 EINVAL,
+							 -1);
 
-	if (format_str_has_n_spec(format))
-	{
-		RUNTIME_CONSTRAINT_HANDLER();
-		return -1;
-	}
+	_CONSTRAINT_VIOLATION_IF(FORMAT_STR_CHECK(format),
+							 EINVAL,
+							 -1);
 
-	/// no %s replacement may be null
-	if (validate_str_args(0, 0, format, arg))
-	{
-		RUNTIME_CONSTRAINT_HANDLER();
-		return -1;
-	}
+	_CONSTRAINT_VIOLATION_IF(validate_str_args(0, 0, format, arg), 
+							 EINVAL,
+							 -1);
+
 	
 	return vfprintf(stream, format, arg);
 }
@@ -265,27 +236,22 @@ int vfprintf_s(FILE * restrict stream,
 int fprintf_s(FILE * restrict stream,
 			  const char * restrict format, ...)
 {
-	if (!stream || !format)
-	{
-		RUNTIME_CONSTRAINT_HANDLER();
-		return -1;
-	}
+	_CONSTRAINT_VIOLATION_IF(stream == NULL,
+							 EINVAL,
+							 -1);
 
-	if (format_str_has_n_spec(format))
-	{
-		RUNTIME_CONSTRAINT_HANDLER();
-		return -1;
-	}
+	_CONSTRAINT_VIOLATION_IF(FORMAT_STR_CHECK(format),
+							 EINVAL,
+							 -1);
+
 
 	va_list arg;
 	va_start (arg, format);
 
-	///	no %s replacement may be null
-	if (validate_str_args(0, 0, format, arg))
-	{
-		RUNTIME_CONSTRAINT_HANDLER();
-		return -1;
-	}
+	_CONSTRAINT_VIOLATION_CLEANUP_IF(validate_str_args(0, 0, format, arg), 
+									 va_end(arg),
+									 EINVAL,
+									 -1);
 	
 	int ret = vfprintf_s(stream, format, arg);
 	va_end(arg);
@@ -296,23 +262,13 @@ int fprintf_s(FILE * restrict stream,
 int vprintf_s(const char * restrict format,
 			  va_list arg)
 {
-	if (!format)
-	{
-		RUNTIME_CONSTRAINT_HANDLER();
-		return -1;
-	}
+	_CONSTRAINT_VIOLATION_IF(FORMAT_STR_CHECK(format),
+							 EINVAL,
+							 -1);
 
-	if (format_str_has_n_spec(format))
-	{
-		RUNTIME_CONSTRAINT_HANDLER();
-		return -1;
-	}
-
-	if (validate_str_args(0, 0, format, arg))
-	{
-		RUNTIME_CONSTRAINT_HANDLER();
-		return -1;
-	}
+	_CONSTRAINT_VIOLATION_IF(validate_str_args(0, 0, format, arg), 
+							 EINVAL,
+							 -1);
 
 	int ret = printf(format, arg);
 
@@ -322,28 +278,14 @@ int vprintf_s(const char * restrict format,
 
 int printf_s(const char * restrict format, ...)
 {
-	if (!format)
-	{
-		RUNTIME_CONSTRAINT_HANDLER();
-		return -1;
-	}
+    _CONSTRAINT_VIOLATION_IF(FORMAT_STR_CHECK(format), EINVAL, -1);
 
 	va_list arg;
 	va_start(arg, format);
 
-	///	Check that there is no %n inside the format string
-	if (format_str_has_n_spec(format))
-	{
-		RUNTIME_CONSTRAINT_HANDLER();
-		return -1;
-	}
-
 	///	no %s replacement may be null
-	if (validate_str_args(0, 0, format, arg))
-	{
-		RUNTIME_CONSTRAINT_HANDLER();
-		return -1;
-	}
+    _CONSTRAINT_VIOLATION_CLEANUP_IF(validate_str_args(0, 0, format, arg), 
+									 va_end(arg), EINVAL, -1);
 
 	int ret = vprintf_s(format,arg);
 
@@ -354,22 +296,24 @@ int printf_s(const char * restrict format, ...)
 
 int vscanf_s(const char * restrict format, va_list arg)
 {
-	if(!format || !arg)
-	{
-		RUNTIME_CONSTRAINT_HANDLER();
-		return EOF;
-	}
+	_CONSTRAINT_VIOLATION_IF(format == NULL,
+							 EINVAL,
+							 EOF);
+
+	_CONSTRAINT_VIOLATION_IF(arg == NULL,
+							 EINVAL,
+							 EOF);
+
 	return vfscanf_s(stdin, format,arg);
 }
 
 
 int scanf_s(const char * restrict format, ...)
 {
-	if(!format)
-	{
-		RUNTIME_CONSTRAINT_HANDLER();
-		return EOF;
-	}
+	_CONSTRAINT_VIOLATION_IF(format == NULL,
+							 EINVAL,
+							 EOF);
+
 	va_list argp;
 	va_start(argp, format);
 	int ret = vscanf_s(format, argp);
@@ -381,12 +325,18 @@ int scanf_s(const char * restrict format, ...)
 int vsscanf_s(const char * restrict s,
 			  const char * restrict format, va_list arg)
 {
-  
-	if(!s || !format || !arg)
-	{
-		RUNTIME_CONSTRAINT_HANDLER();
-		return EOF;
-	}
+	_CONSTRAINT_VIOLATION_IF(s == NULL, 
+							 EINVAL, 
+							 EOF);
+
+	_CONSTRAINT_VIOLATION_IF(format == NULL,
+							 EINVAL,
+							 EOF);
+
+	_CONSTRAINT_VIOLATION_IF(arg == NULL,
+							 EINVAL,
+							 EOF);
+
 	FILE *stream;
 	stream = fmemopen ((char *) s, strlen(s), "r");
 	int ret = vfscanf_s(stream, format, arg);
@@ -398,16 +348,13 @@ int vsscanf_s(const char * restrict s,
 int sscanf_s(const char * restrict s,
 			 const char * restrict format, ...)
 {
-	if(format == NULL)
-	{
-		RUNTIME_CONSTRAINT_HANDLER();
-		return EOF;
-	}
-	if(!s || !format)
-	{
-		RUNTIME_CONSTRAINT_HANDLER();
-		return EOF;
-	}
+	_CONSTRAINT_VIOLATION_IF(s == NULL, 
+							 EINVAL, 
+							 EOF);
+
+	_CONSTRAINT_VIOLATION_IF(format == NULL,
+							 EINVAL,
+							 EOF);
 
 	va_list argp;
 	va_start(argp, format);
@@ -437,11 +384,17 @@ extern int gnu_vfscanf_s (_IO_FILE *s, const char *format,
 int vfscanf_s(FILE * restrict stream,
 			  const char * restrict format, va_list arg)
 {
-	if(!stream || !format || !arg)
-	{
-		RUNTIME_CONSTRAINT_HANDLER();
-		return EOF;
-	}
+	_CONSTRAINT_VIOLATION_IF(stream == NULL, 
+							 EINVAL, 
+							 EOF);
+
+	_CONSTRAINT_VIOLATION_IF(format == NULL,
+							 EINVAL,
+							 EOF);
+
+	_CONSTRAINT_VIOLATION_IF(arg == NULL,
+							 EINVAL,
+							 EOF);
 
 	return 	gnu_vfscanf_s(stream, format, arg, NULL);
 }

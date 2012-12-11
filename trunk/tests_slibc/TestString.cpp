@@ -339,9 +339,11 @@ void TestString :: test_gets_s (void)
 	fclose(tmpfile);
 	freopen(tmpnam, "r", stdin);
 
+	s[0] = 'T';
 	CPPUNIT_ASSERT_THROW(gets_s(NULL,RSIZE_MAX-1), RuntimeConstraintViolation);
 	CPPUNIT_ASSERT_THROW(gets_s(s,RSIZE_MAX+1), RuntimeConstraintViolation);
-	CPPUNIT_ASSERT_EQUAL(true ,s[0] == (char) NULL);
+	CPPUNIT_ASSERT_THROW(gets_s(s,0), RuntimeConstraintViolation);
+	CPPUNIT_ASSERT_EQUAL('T' ,s[0]);
 
 	freopen(tmpnam, "r", stdin);
 	gets_s(s, 14);

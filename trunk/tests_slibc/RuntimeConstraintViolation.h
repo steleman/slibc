@@ -31,7 +31,8 @@
 // temporary hack
 #include "../src/slibc.h"
 
-
+// this is a bit out of date. currently, we do not fill the struct
+// ConstraintHandlerDetails any longer
 class RuntimeConstraintViolation : public std::exception
 {
 public:

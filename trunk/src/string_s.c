@@ -50,27 +50,22 @@ size_t strnlen_s(const char *s, size_t maxsize)
 
 errno_t strcpy_s(char * restrict s1, rsize_t s1max, const char * restrict s2)
 {
-	if (!s1 || s1max == 0 || s1max > RSIZE_MAX )
-	{
-		RUNTIME_CONSTRAINT_HANDLER();
-		return EINVAL;
-	}
+	_CONSTRAINT_VIOLATION_IF((s1 == NULL), EINVAL, EINVAL);
+	_CONSTRAINT_VIOLATION_IF((s1max == 0), EINVAL, EINVAL);
+	_CONSTRAINT_VIOLATION_IF((s1max > RSIZE_MAX), EINVAL, EINVAL);
 
 	rsize_t s2_len = 0;
-	if (!s2 || s1max <= (s2_len=strnlen_s(s2, s1max)) )
-	{
-		s1[0] = 0;
-		RUNTIME_CONSTRAINT_HANDLER();
-		return EINVAL;
-	}
-	
-	// Check whether s1 and s2 overlap
-	if (REGIONS_OVERLAP_CHECK(s1, s1max, s2, s2_len+1))
-	{
-		s1[0] = 0;
-		RUNTIME_CONSTRAINT_HANDLER();
-		return EINVAL;
-	}
+	_CONSTRAINT_VIOLATION_CLEANUP_IF(s2 == NULL,
+									 s1[0] = 0, 
+									 EINVAL, EINVAL);
+	_CONSTRAINT_VIOLATION_CLEANUP_IF((s1max <= (s2_len=strnlen_s(s2, s1max)) ),
+									 s1[0] = 0, EINVAL, EINVAL);
+
+	_CONSTRAINT_VIOLATION_CLEANUP_IF(\
+		REGIONS_OVERLAP_CHECK(s1, s1max, s2, s2_len+1),
+		s1[0] = 0, 
+		EINVAL, EINVAL);
+
 
 	strncpy(s1, s2, s1max-1);
 	s1[s1max-1] = '\0';
@@ -84,25 +79,28 @@ errno_t strncpy_s(char * restrict s1, rsize_t s1max, const char * restrict s2, r
 {
 	rsize_t m;
 
-	if (!s1 || s1max == 0 || s1max > RSIZE_MAX)
-	{
-		RUNTIME_CONSTRAINT_HANDLER();
-		return EINVAL;
-	}
+	_CONSTRAINT_VIOLATION_IF((s1 == NULL), 
+							 EINVAL, EINVAL);
+	_CONSTRAINT_VIOLATION_IF((s1max == 0), 
+							 EINVAL, EINVAL);
+	_CONSTRAINT_VIOLATION_IF((s1max > RSIZE_MAX),
+							 EINVAL, EINVAL);
 
-	if ( !s2 ||	 n > RSIZE_MAX || (n >= s1max && s1max <= strnlen_s(s2, s1max)) )
-	{
-		s1[0] = 0;
-		RUNTIME_CONSTRAINT_HANDLER();
-		return EINVAL;
-	}
+	_CONSTRAINT_VIOLATION_CLEANUP_IF(s2 == NULL,
+									 s1[0] = 0, 
+									 EINVAL, EINVAL);
+	_CONSTRAINT_VIOLATION_CLEANUP_IF(n > RSIZE_MAX,
+									 s1[0] = 0, 
+									 EINVAL, EINVAL);
+	_CONSTRAINT_VIOLATION_CLEANUP_IF((n >= s1max && s1max <= strnlen_s(s2, s1max)),
+									 s1[0] = 0, 
+									 EINVAL, EINVAL);
+
+	_CONSTRAINT_VIOLATION_CLEANUP_IF(\
+		REGIONS_OVERLAP_CHECK(s1, s1max, s2, n+1), 
+		s1[0] = 0, 
+		EINVAL, EINVAL);
 	
-	if (REGIONS_OVERLAP_CHECK(s1, s1max, s2, n+1))			 
-	{
-		s1[0] = 0;
-		RUNTIME_CONSTRAINT_HANDLER();
-		return EINVAL;
-	}
 
 	m = MIN(n, s1max-1);
 	strncpy(s1, s2, m);
@@ -118,29 +116,32 @@ errno_t strcat_s(char * restrict s1,
 				 rsize_t s1max,
 				 const char * restrict s2)
 {
-	if (!s1 || s1max == 0 || s1max > RSIZE_MAX)
-	{
-		RUNTIME_CONSTRAINT_HANDLER();
-		return EINVAL;
-	}
+	_CONSTRAINT_VIOLATION_IF((s1 == NULL), 
+							 EINVAL, EINVAL);
+	_CONSTRAINT_VIOLATION_IF((s1max == 0), 
+							 EINVAL, EINVAL);
+	_CONSTRAINT_VIOLATION_IF((s1max > RSIZE_MAX),
+							 EINVAL, EINVAL);
 
 	size_t s1_len = 0;
 	rsize_t s2_len = 0;
 	size_t m = s1max - (s1_len=strnlen_s(s1, s1max));
 
-	if ( !s2 || m == 0 || (m <= (s2_len=strnlen_s(s2, m))) )
-	{
-		s1[0] = 0;
-		RUNTIME_CONSTRAINT_HANDLER();
-		return EINVAL;
-	}
-	
-	if (REGIONS_OVERLAP_CHECK(s1+s1_len, m, s2, s2_len+1)) 
-	{
-		s1[0] = 0;
-		RUNTIME_CONSTRAINT_HANDLER();
-		return EINVAL;
-	}
+	_CONSTRAINT_VIOLATION_CLEANUP_IF(s2 == NULL,
+									 s1[0] = 0, 
+									 EINVAL, EINVAL);
+	_CONSTRAINT_VIOLATION_CLEANUP_IF(m == 0,
+									 s1[0] = 0, 
+									 EINVAL, EINVAL);
+	_CONSTRAINT_VIOLATION_CLEANUP_IF((m <= (s2_len=strnlen_s(s2, m))), 
+									 s1[0] = 0, 
+									 EINVAL, EINVAL);
+
+	_CONSTRAINT_VIOLATION_CLEANUP_IF(\
+		REGIONS_OVERLAP_CHECK(s1+s1_len, m, s2, s2_len+1), 
+		s1[0] = 0, 
+		EINVAL, EINVAL);
+
 
 	strncat(s1, s2, m-1);
 	// should not be necessary
@@ -155,28 +156,31 @@ errno_t strncat_s(char * restrict s1,
 				  const char * restrict s2,
 				  rsize_t n)
 {
-	if (!s1 || s1max == 0 || s1max > RSIZE_MAX)
-	{
-		RUNTIME_CONSTRAINT_HANDLER();
-		return EINVAL;
-	}
+	_CONSTRAINT_VIOLATION_IF((s1 == NULL), 
+							 EINVAL, EINVAL);
+	_CONSTRAINT_VIOLATION_IF((s1max == 0), 
+							 EINVAL, EINVAL);
+	_CONSTRAINT_VIOLATION_IF((s1max > RSIZE_MAX),
+							 EINVAL, EINVAL);
 
 	size_t s1_len = 0;
 	size_t m = s1max - (s1_len=strnlen_s(s1, s1max));
 
-	if ( !s2 || n > RSIZE_MAX || m == 0 || (n >= m && m <= strnlen_s(s2, m)) )
-	{
-		s1[0] = 0;
-		RUNTIME_CONSTRAINT_HANDLER();
-		return EINVAL;
-	}
+	_CONSTRAINT_VIOLATION_CLEANUP_IF(s2 == NULL,
+									 s1[0] = 0, 
+									 EINVAL, EINVAL);
+	_CONSTRAINT_VIOLATION_CLEANUP_IF(n > RSIZE_MAX || m == 0,
+									 s1[0] = 0, 
+									 EINVAL, EINVAL);
+	_CONSTRAINT_VIOLATION_CLEANUP_IF((n >= m && m <= strnlen_s(s2, m)), 
+									 s1[0] = 0, 
+									 EINVAL, EINVAL);
+
+	_CONSTRAINT_VIOLATION_CLEANUP_IF(\
+		REGIONS_OVERLAP_CHECK(s1+s1_len, m, s2, n+1), 
+		s1[0] = 0, 
+		EINVAL, EINVAL);
 	
-	if (REGIONS_OVERLAP_CHECK(s1+s1_len, m, s2, n+1)) 
-	{
-		s1[0] = 0;
-		RUNTIME_CONSTRAINT_HANDLER();
-		return EINVAL;
-	}
 
 	strncat(s1, s2, m-1);
 	// should not be necessary
@@ -188,15 +192,32 @@ errno_t strncat_s(char * restrict s1,
 errno_t memcpy_s(void * restrict s1, rsize_t s1max,
 				 const void * restrict s2, rsize_t n)
 {
-	if(!s1 || !s2 || s1max > RSIZE_MAX || n > RSIZE_MAX || n > s1max || 
-	   REGIONS_OVERLAP_CHECK(s1, s1max, s2, n))
-	{
-		if(s1 != (void *) NULL && s1max <= RSIZE_MAX)
-			memset(s1, 0, s1max);
+#define MEMCPY_S_CLEANUP						  \
+	do											  \
+	{											  \
+		if(s1 != NULL && s1max <= RSIZE_MAX)	  \
+			memset(s1, 0, s1max);				  \
+	} while (0)
 
-		RUNTIME_CONSTRAINT_HANDLER();
-		return EINVAL;
-	}
+	_CONSTRAINT_VIOLATION_CLEANUP_IF(s1 == NULL,
+									 MEMCPY_S_CLEANUP, 
+									 EINVAL, EINVAL);
+	_CONSTRAINT_VIOLATION_CLEANUP_IF(s2 == NULL,
+									 MEMCPY_S_CLEANUP,
+									 EINVAL, EINVAL);
+	_CONSTRAINT_VIOLATION_CLEANUP_IF(s1max > RSIZE_MAX, 
+									 MEMCPY_S_CLEANUP,
+									 EINVAL, EINVAL);
+	_CONSTRAINT_VIOLATION_CLEANUP_IF(n > RSIZE_MAX, 
+									 MEMCPY_S_CLEANUP,
+									 EINVAL, EINVAL);
+	_CONSTRAINT_VIOLATION_CLEANUP_IF(n > s1max, 
+									 MEMCPY_S_CLEANUP,
+									 EINVAL, EINVAL);
+	_CONSTRAINT_VIOLATION_CLEANUP_IF(REGIONS_OVERLAP_CHECK(s1, s1max, s2, n), 
+									 MEMCPY_S_CLEANUP,
+									 EINVAL, EINVAL);
+
 	void * res = memcpy(s1, s2, n);
 	if (res != (void *) NULL)
 		return 0;
@@ -206,14 +227,29 @@ errno_t memcpy_s(void * restrict s1, rsize_t s1max,
 errno_t memmove_s(void *s1, rsize_t s1max,
 				  const void *s2, rsize_t n)
 {
-	if(!s1 || !s2 || s1max > RSIZE_MAX || n > RSIZE_MAX || n > s1max)
-	{
-		if(s1 != (void *) NULL && s1max <= RSIZE_MAX)
-			memset(s1, 0, s1max);
+#define MEMMOVE_S_CLEANUP						\
+	do											\
+	{											\
+		if(s1 != NULL && s1max <= RSIZE_MAX)	\
+			memset(s1, 0, s1max);				\
+	} while(0)
 
-		RUNTIME_CONSTRAINT_HANDLER();
-		return EINVAL;
-	}
+	_CONSTRAINT_VIOLATION_CLEANUP_IF(s1 == NULL,
+									 MEMMOVE_S_CLEANUP, 
+									 EINVAL, EINVAL);
+	_CONSTRAINT_VIOLATION_CLEANUP_IF(s2 == NULL,
+									 MEMMOVE_S_CLEANUP,
+									 EINVAL, EINVAL);
+	_CONSTRAINT_VIOLATION_CLEANUP_IF(s1max > RSIZE_MAX, 
+									 MEMMOVE_S_CLEANUP,
+									 EINVAL, EINVAL);
+	_CONSTRAINT_VIOLATION_CLEANUP_IF(n > RSIZE_MAX, 
+									 MEMMOVE_S_CLEANUP,
+									 EINVAL, EINVAL);
+	_CONSTRAINT_VIOLATION_CLEANUP_IF(n > s1max, 
+									 MEMMOVE_S_CLEANUP,
+									 EINVAL, EINVAL);
+
 	
 	(void) memmove(s1,s2,n);
 
@@ -225,22 +261,20 @@ char *strtok_s(char * restrict s1,
 			   const char * restrict s2,
 			   char ** restrict ptr)
 {
-	if(!s1max || !s2 || !ptr || (!s1 && !*ptr) || *s1max > RSIZE_MAX)
-	{
-		RUNTIME_CONSTRAINT_HANDLER();
-		return (char *) NULL;
-	}
+	_CONSTRAINT_VIOLATION_IF(\
+		(!s1max || !s2 || !ptr || (!s1 && !*ptr) || *s1max > RSIZE_MAX),
+		EINVAL,
+		NULL);
+
 	return gnu_strtok_s(s1, s1max, s2, ptr);
 }
 
 errno_t strerror_s(char *s, rsize_t maxsize,
 				   errno_t errnum)
 {
-	if(!s || maxsize > RSIZE_MAX || maxsize == 0)
-	{
-		RUNTIME_CONSTRAINT_HANDLER();
-		return EINVAL;
-	}
+	_CONSTRAINT_VIOLATION_IF((!s || maxsize > RSIZE_MAX || maxsize == 0),
+							 EINVAL,
+							 EINVAL);
 
 #ifdef SLIBC_MT
 	// this version is thread-safe

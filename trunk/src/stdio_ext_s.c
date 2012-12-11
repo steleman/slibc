@@ -31,11 +31,8 @@ errno_t slibc_set_tmp_dir(const char *tmp_dir)
 	// we copy to the local variable first
 	char local_tmp_dir[PATH_MAX];
 
-	if (! tmp_dir)
-	{
-		RUNTIME_CONSTRAINT_HANDLER();
-		return EINVAL;
-	}
+	_CONSTRAINT_VIOLATION_IF( (! tmp_dir),
+							  EINVAL, EINVAL);
 
 	if (strcpy_s(local_tmp_dir, sizeof(local_tmp_dir), tmp_dir))
 		return -1;
@@ -59,13 +56,18 @@ errno_t slibc_set_tmp_dir(const char *tmp_dir)
 
 errno_t slibc_get_tmp_dir(char *buf, rsize_t buf_size)
 {
-	if (! buf || buf_size == 0 || buf_size > RSIZE_MAX)
-	{
-		if (buf && buf_size > 0)
-			buf[0] = '\0';
-		RUNTIME_CONSTRAINT_HANDLER();
-		return EINVAL;
-	}
+#define SLIBC_GET_TMP_DIR_CLEANUP				\
+	do											\
+	{											\
+		if (buf && buf_size > 0)				\
+			buf[0] = '\0';						\
+	} while(0)
+
+	_CONSTRAINT_VIOLATION_CLEANUP_IF(\
+		(! buf || buf_size == 0 || buf_size > RSIZE_MAX),
+		SLIBC_GET_TMP_DIR_CLEANUP,
+		EINVAL, EINVAL);
+
 
 	SLIBC_MUTEX_LOCK(&slibc_tmp_dir_m);
 	if (strlen(slibc_tmp_dir) < buf_size)
@@ -79,8 +81,8 @@ errno_t slibc_get_tmp_dir(char *buf, rsize_t buf_size)
 		SLIBC_MUTEX_UNLOCK(&slibc_tmp_dir_m);
 
 		buf[0] = '\0';
-		RUNTIME_CONSTRAINT_HANDLER();
-		return EINVAL;
+
+		_CONSTRAINT_VIOLATION("Target buf not big enough", EINVAL, EINVAL);
 	}
 }
 
@@ -90,12 +92,10 @@ errno_t mktemp_s(char *temp, size_t sizeInChars)
 	unsigned int i = 0;
 	unsigned int x = 0;
 	int xstart = 0;
-	if (!temp)
-	{
-		temp = (char *) NULL;
-		RUNTIME_CONSTRAINT_HANDLER();
-		return EINVAL;
-	}
+
+	_CONSTRAINT_VIOLATION_IF( (!temp),
+							  EINVAL,
+							  EINVAL);
 
 	for(i = 0; i < strlen(temp); i++)
 	{
@@ -104,20 +104,21 @@ errno_t mktemp_s(char *temp, size_t sizeInChars)
 			x++;
 			xstart = 1;
 		}
-		else if (xstart && temp[i] != '\0')
+		else if (xstart)
 		{
 			temp[0] = '\0';
-			RUNTIME_CONSTRAINT_HANDLER();
-			return EINVAL;
+
+			_CONSTRAINT_VIOLATION("temp must containt 6 consecutive X characters",
+								  EINVAL, EINVAL);
 		}
 	}
 
-	if(x > sizeInChars || strlen(temp) > sizeInChars || x != 6)
-	{
-		temp[0] = '\0';
-		RUNTIME_CONSTRAINT_HANDLER();
-		return EINVAL;
-	}
+	_CONSTRAINT_VIOLATION_CLEANUP_IF( \
+		(x > sizeInChars || strlen(temp) > sizeInChars || x != 6),
+		temp[0] = '\0',
+		EINVAL,
+		EINVAL);
+
 	char * res = mktemp(temp);
 
 	if(res != (char *) NULL)
@@ -131,12 +132,10 @@ errno_t mkstemp_s(char *temp, int *fd, size_t sizeInChars)
 	unsigned int i = 0;
 	unsigned int x = 0;
 	int xstart = 0;
-	if (!temp)
-	{
-		temp = (char *) NULL;
-		RUNTIME_CONSTRAINT_HANDLER();
-		return EINVAL;
-	}
+
+	_CONSTRAINT_VIOLATION_IF( (!temp),
+							  EINVAL,
+							  EINVAL);
 
 	for(i = 0; i < strlen(temp); i++)
 	{
@@ -145,20 +144,21 @@ errno_t mkstemp_s(char *temp, int *fd, size_t sizeInChars)
 			x++;
 			xstart = 1;
 		}
-		else if (xstart && temp[i] != '\0')
+		else if (xstart)
 		{
 			temp[0] = '\0';
-			RUNTIME_CONSTRAINT_HANDLER();
-			return EINVAL;
+
+			_CONSTRAINT_VIOLATION("temp must containt 6 consecutive X characters",
+								  EINVAL, EINVAL);
 		}
 	}
 
-	if(x > sizeInChars || strlen(temp) > sizeInChars || x != 6)
-	{
-		temp[0] = '\0';
-		RUNTIME_CONSTRAINT_HANDLER();
-		return EINVAL;
-	}
+	_CONSTRAINT_VIOLATION_CLEANUP_IF( \
+		(x > sizeInChars || strlen(temp) > sizeInChars || x != 6),
+		temp[0] = '\0',
+		EINVAL,
+		EINVAL);
+
 	*fd = mkstemp(temp);
 
 	if(*fd != -1)

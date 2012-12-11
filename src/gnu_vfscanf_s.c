@@ -2988,8 +2988,7 @@ errout:
 
 	if (runtime_constraint)
 	{
-		RUNTIME_CONSTRAINT_HANDLER();
-		return EOF;
+		_CONSTRAINT_VIOLATION("Encountered an output variable that is NULL", EINVAL, EOF);
 	}
 	return done;
 }

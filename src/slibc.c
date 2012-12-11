@@ -22,18 +22,35 @@
 
 #include "slibc.h"
 
+#define RUNTIME_CONSTRAINT_MSG_MAX 1024
+
+
 void slibc_call_constraint_handler(const char *msg,
 								   const char *func,
 								   const char *file,
-								   unsigned line)
+								   unsigned line,
+								   errno_t error)
 {
-	ConstraintHandlerDetails details;
-	details.function = func;
-	details.file = file;
-	details.line = line;
 
-	//XXX: something better than EINVAL?
-	slibc_constraint_handler(msg, &details, EINVAL);
+	/* In the worst case, the msg stored in buf is truncated.
+	 */
+	char buf[RUNTIME_CONSTRAINT_MSG_MAX];
+
+
+	/* To be on the safe side
+	 */
+	if (!msg)
+		msg = "(empty message)";
+	if (!func)
+		func = "(empty functionname)";
+	if (!file)
+		file = "(empty filename)";
+			
+	snprintf(buf, sizeof(buf), "The runtime-constraint violation was caused by the\
+ following expression in %s:\n%s (in %s:%u)",
+				 func, msg, file, line);	
+
+	slibc_constraint_handler(buf, NULL, error);
 }
 
 

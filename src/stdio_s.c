@@ -36,11 +36,9 @@ errno_t tmpfile_s(FILE * restrict * restrict streamptr)
 	char tmp_filename[PATH_MAX];
 	int fd = -1;
 
-	if (!streamptr)
-	{
-		RUNTIME_CONSTRAINT_HANDLER();
-		return EINVAL;
-	} 
+	_CONSTRAINT_VIOLATION_IF((!streamptr),
+							 EINVAL,
+							 EINVAL);
 
 	if (slibc_get_tmp_dir(tmp_filename, sizeof(tmp_filename)))
 		return -1;
@@ -83,13 +81,11 @@ errno_t tmpnam_s(char *s, rsize_t maxsize)
 {
 	char tmp_dir[PATH_MAX];
 
-	if (!s || maxsize > RSIZE_MAX || maxsize < L_tmpnam_s)
-	{
-		if(s && maxsize > 0)
-			s[0] = '\0';
-		RUNTIME_CONSTRAINT_HANDLER();
-		return EINVAL;
-	}
+	_CONSTRAINT_VIOLATION_CLEANUP_IF(\
+		(!s || maxsize > RSIZE_MAX || maxsize < L_tmpnam_s),
+		if(s && maxsize > 0) {s[0] = '\0';},
+		EINVAL,
+		EINVAL);		
 
 	if (slibc_get_tmp_dir(tmp_dir, sizeof(tmp_dir)))
 		return -1;
@@ -110,28 +106,22 @@ errno_t tmpnam_s(char *s, rsize_t maxsize)
 }
 
 
-//inline to avoid exporting this symbol in our static lib
-//there must be a better way
-inline 
-char* get_s_returns_constraint_violation(char *s, rsize_t n)
+
+inline void get_s_cleanup(char *s)
 {
 	if(s)
 		s[0] = '\0';
 	// read and discard characters from stdin until \n,EOF, or read error
 	char c;
 	while((c = getc(stdin)) != EOF && c !='\n');
-		
-	RUNTIME_CONSTRAINT_HANDLER();
-	return NULL;
 }
-
 
 char *gets_s(char *s, rsize_t n)
 {
-	if (!s || n > RSIZE_MAX || n == 0)
-	{
-		return get_s_returns_constraint_violation(s, n);
-	}
+	_CONSTRAINT_VIOLATION_IF( (!s || n > RSIZE_MAX || n == 0),
+							  EINVAL,
+							  NULL);
+
 	char ch;
 	rsize_t i = 0;
 	for(; (i < n-1) && ((ch = getchar()) != EOF) && (ch != '\n'); i++ )
@@ -155,7 +145,8 @@ char *gets_s(char *s, rsize_t n)
 	{
 		// the standard considers it a runtime constraint if no newline or EOF/read-error
 		// occurs within n
-		return get_s_returns_constraint_violation(s, n);
+		get_s_cleanup(s);
+		_CONSTRAINT_VIOLATION("Encountered no newline or EOF within the first n chars", EINVAL, NULL);
 	}
 }
 
@@ -164,13 +155,10 @@ errno_t fopen_s(FILE * restrict * restrict streamptr,
 				const char * restrict filename,
 				const char * restrict mode)
 {
-	if (!streamptr || !mode || !filename)
-	{
-		RUNTIME_CONSTRAINT_HANDLER();
-		if(streamptr != NULL)
-			*streamptr = (FILE *) NULL;
-		return EINVAL;
-	}
+	_CONSTRAINT_VIOLATION_IF(streamptr == 0, EINVAL, EINVAL);
+	_CONSTRAINT_VIOLATION_CLEANUP_IF( !mode || !filename, 
+									  *streamptr = (FILE *) NULL, 
+									  EINVAL, EINVAL);
 	
 	FILE * ret = NULL;
 
@@ -225,13 +213,10 @@ errno_t freopen_s(FILE * restrict * restrict newstreamptr,
 				  const char * restrict mode,
 				  FILE * restrict stream)
 {
-	if (!newstreamptr || !mode || !stream)
-	{
-		RUNTIME_CONSTRAINT_HANDLER();
-		if(newstreamptr != NULL)
-			*newstreamptr = NULL;
-		return EINVAL;
-	}
+	_CONSTRAINT_VIOLATION_IF(newstreamptr == 0, EINVAL, EINVAL);
+	_CONSTRAINT_VIOLATION_CLEANUP_IF( !mode || !stream, 
+									  *newstreamptr = (FILE *) NULL, 
+									  EINVAL, EINVAL);
 	
 	if(filename) 
 	{

@@ -75,12 +75,12 @@ extern __thread constraint_handler_t slibc_constraint_handler;
 void slibc_call_constraint_handler(const char *msg,
 								   const char *func,
 								   const char *file,
-								   unsigned line);
+								   unsigned line,
+								   errno_t error);
 
-
-#define RUNTIME_CONSTRAINT_HANDLER() \
-		slibc_call_constraint_handler("Runtime constraint violation", \
-									  __FUNCTION__,	 __FILE__, __LINE__)
+/* #define RUNTIME_CONSTRAINT_HANDLER() \ */
+/* 	slibc_call_constraint_handler("Runtime constraint violation", "",	\ */
+/* 								  __FUNCTION__,	 __FILE__, __LINE__, EINVAL) */
 
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
@@ -91,6 +91,50 @@ void slibc_call_constraint_handler(const char *msg,
 #define REGIONS_OVERLAP_CHECK(s1, s1_size, s2, s2_size)					\
 	( ((s2 >= s1) && ((char *)s2 < ((char *)s1 + s1_size))) ||			\
 	  ((s2 < s1)  && ((char *)s2 + s2_size -1 >= (char *)s1) && ((char *)s2 + s2_size -1 < (char *)s1 + s1_size) ))
+
+
+
+
+
+#define _CONSTRAINT_VIOLATION(msg, error_code, ret_code)				\
+	do {																\
+		errno = (error_code);											\
+		slibc_call_constraint_handler(msg,								\
+									  __FUNCTION__,						\
+									  __FILE__,							\
+									  __LINE__,							\
+									  error_code);						\
+		return (ret_code);												\
+	} while(0)
+
+#define _CONSTRAINT_VIOLATION_IF(expr, error_code, ret_code)			\
+    do {																\
+		int expr_val = expr;											\
+		if (expr_val)													\
+		{																\
+			errno = error_code;											\
+			slibc_call_constraint_handler(#expr, __FUNCTION__,__FILE__, __LINE__, error_code); \
+			return ret_code;											\
+		}																\
+    } while(0)
+	
+/* N.B: cleanup_code is only evaluated in case of a 
+ *      constraint violation (i.e., if expr is true)
+ */
+#define _CONSTRAINT_VIOLATION_CLEANUP_IF(expr, cleanup_code, error_code, ret_code) \
+    do {																\
+		int expr_val = expr;											\
+		if (expr_val)													\
+		{																\
+			do {														\
+				cleanup_code;	/* execute */							\
+			} while(0);													\
+			errno = error_code;											\
+			slibc_call_constraint_handler(#expr, __FUNCTION__, __FILE__, __LINE__, error_code); \
+			return ret_code;											\
+		}																\
+    } while(0)
+
 
 
 #define SLIBC_INTERNAL __attribute__((visibility ("hidden")))

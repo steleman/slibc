@@ -24,14 +24,19 @@
 
 errno_t asctime_s(char *s, rsize_t maxsize, const struct tm *timeptr)
 {
-	if(!s || !timeptr || maxsize < 26 || maxsize > RSIZE_MAX 
-	   || timeptr->tm_year < 0 || timeptr->tm_year > 9999)
-	{
-		if(s != (char *) NULL && maxsize > 0 && maxsize < RSIZE_MAX)
-			s[0] = '\0';
-		RUNTIME_CONSTRAINT_HANDLER();
-		return -1;
-	}
+#define ASCTIME_S_CLEANUP								\
+	do												\
+	{													\
+		if(s != NULL && maxsize > 0 && maxsize < RSIZE_MAX)	\
+			s[0] = '\0';									\
+	} while(0)
+
+	_CONSTRAINT_VIOLATION_CLEANUP_IF(\
+		(!s || !timeptr || maxsize < 26 || maxsize > RSIZE_MAX 
+		 || timeptr->tm_year < 0 || timeptr->tm_year > 9999),
+		ASCTIME_S_CLEANUP,
+		EINVAL, EINVAL);
+
 	
 	char *ret = asctime_r(timeptr, s);
 	if (ret == NULL)
@@ -53,20 +58,18 @@ errno_t ctime_s(char *s, rsize_t maxsize, const time_t *timer)
 
 struct tm *gmtime_s(const time_t * restrict timer, struct tm * restrict result)
 {
-	if(!timer || !result)
-	{
-		RUNTIME_CONSTRAINT_HANDLER();
-		return (struct tm*) NULL;
-	}
+	_CONSTRAINT_VIOLATION_IF ( (!timer || !result),
+							   EINVAL,
+							   NULL);
+
 	return gmtime_r(timer, result);
 }
 
 struct tm *localtime_s(const time_t * restrict timer, struct tm * restrict result)
 {
-	if(!timer || !result)
-	{
-		RUNTIME_CONSTRAINT_HANDLER();
-		return (struct tm*) NULL;
-	}
+	_CONSTRAINT_VIOLATION_IF ( (!timer || !result),
+							   EINVAL,
+							   NULL);
+
 	return localtime_r(timer, result);
 }

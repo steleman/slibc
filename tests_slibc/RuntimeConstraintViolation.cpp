@@ -48,7 +48,8 @@ const char* RuntimeConstraintViolation::what() const throw()
 }
 
 // For this function to work correctly, it is important
-// to have slibc compiled as C++ code. Otherwise, the 
+// to have slibc compiled as C++ code or use the compiler switch
+// -fexceptions when compiling C code. Otherwise, the 
 // thrown C++ exception travels up the stack through C 
 // code which is a non supported configuration. (although 
 // it seems to work on some systems)
@@ -56,16 +57,8 @@ void cpp_constraint_handler_s(const char * restrict msg,
 							  void * restrict ptr,
 							  errno_t error)
 {
-	ConstraintHandlerDetails *details;
-
-	details = (ConstraintHandlerDetails*) ptr;
-
 	if (!msg)
 		msg = "";
 
-	if (details)
-		throw RuntimeConstraintViolation(msg, *details);
-	else
-		throw RuntimeConstraintViolation(msg);
-
+	throw RuntimeConstraintViolation(msg);
 }

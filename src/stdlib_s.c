@@ -67,27 +67,12 @@ void abort_handler_s(const char * restrict msg,
 					 void * restrict ptr,
 					 errno_t error)
 {	
-	ConstraintHandlerDetails *details = (ConstraintHandlerDetails*) ptr;
-		
+	fprintf(stderr, "abort_handler_s was called in response to a runtime-constraint violation.\n\n");
 	if (msg)
-	{
-		if (details)
-			fprintf(stderr, "abort_handler_s was called. %s in function '%s',"
-					" file '%s' at line '%d'\n", msg, details->function, 
-					details->file, details->line);
-		else
-			fprintf(stderr, "abort_handler_s was called. Msg: %s\n", msg);
-	}
-	else
-	{
-		if (details)
-			fprintf(stderr, "abort_handler_s was called. "
-					"Runtime constraint violation in function '%s',"
-					" file '%s' at line '%d'\n", details->function, 
-					details->file, details->line);
-		else
-			fprintf(stderr, "abort_handler_s was called.\n");
-	}
+		fprintf(stderr, "%s\n", msg);
+	fprintf(stderr, "\n\nNote to end users: This program was terminated as a result\
+			of a bug present in the software. Please reach out to your	\
+			software's vendor to get more help.\n");
 
 	fflush(stderr);
 	abort();
@@ -105,13 +90,19 @@ errno_t getenv_s(size_t * restrict len,
 				 char * restrict value, rsize_t maxsize,
 				 const char * restrict name)
 {
-	if(!name || maxsize == 0 || maxsize > RSIZE_MAX || (maxsize != 0 && value == (char *) NULL))
-	{
-		RUNTIME_CONSTRAINT_HANDLER();
-		if(len != (size_t *) NULL)
-			*len = 0;
-		return EINVAL;
-	}
+#define GETENV_S_CLEANUP						\
+	do {										\
+		if(len != (size_t *) NULL)				\
+		{										\
+			*len = 0;							\
+		}										\
+	} while(0)
+
+	_CONSTRAINT_VIOLATION_CLEANUP_IF (\
+		(!name || maxsize == 0 || maxsize > RSIZE_MAX || (maxsize != 0 && value == (char *) NULL)),
+		GETENV_S_CLEANUP,
+		EINVAL, EINVAL);
+
 
 	// In the GNU C library getenv is a reentrant function
 	char * result = getenv(name);
@@ -147,16 +138,12 @@ errno_t qsort_s(void *base, rsize_t nmemb, rsize_t size,
 							   void *context),
 				void *context)
 {
-	if(nmemb > RSIZE_MAX || size > RSIZE_MAX)
-	{
-		RUNTIME_CONSTRAINT_HANDLER();
-		return EINVAL;
-	}
-	if(nmemb != 0 && (base == (void *) NULL || compar == (void *) NULL))
-	{
-		RUNTIME_CONSTRAINT_HANDLER();
-		return EINVAL;
-	}
+	_CONSTRAINT_VIOLATION_IF ((nmemb > RSIZE_MAX || size > RSIZE_MAX),
+							 EINVAL,
+							 EINVAL);
+
+	_CONSTRAINT_VIOLATION_IF ((nmemb != 0 && (base == NULL || compar == NULL)),
+							  EINVAL, EINVAL);
 
 	return gnu_qsort_s(base, nmemb, size, compar, context);
 }
@@ -166,15 +153,13 @@ void *bsearch_s (const void *key, const void *base, rsize_t nmemb, rsize_t size,
 				 int (*compar) (const void *, const void *, void *context),
 				 void *context)
 {
-	if(nmemb > RSIZE_MAX || size > RSIZE_MAX)
-	{
-		RUNTIME_CONSTRAINT_HANDLER();
-		return (void *) NULL;
-	}
-	if(nmemb != 0 && (!key || !base || !compar))
-	{
-		RUNTIME_CONSTRAINT_HANDLER();
-		return (void *) NULL;
-	}
+	_CONSTRAINT_VIOLATION_IF ( (nmemb > RSIZE_MAX || size > RSIZE_MAX),
+							   EINVAL,
+							   NULL);
+
+	_CONSTRAINT_VIOLATION_IF ( (nmemb != 0 && (!key || !base || !compar)),
+							   EINVAL,
+							   NULL);
+
 	return gnu_bsearch_s(key, base, nmemb, size, compar, context);
 }

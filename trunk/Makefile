@@ -14,16 +14,20 @@ archive:
 	rm -rf ./gen/$(ARCHIVE_NAME)
 
 install_devel:
-	install -d $(DESTDIR)$(includedir)/slibc/
-	install -D include/slibc/* $(DESTDIR)$(includedir)/slibc/
+	echo $(DESTDIR)/$(includedir)/slibc/
+	install -d $(DESTDIR)/$(includedir)/slibc/
+	install -D include/slibc/* $(DESTDIR)/$(includedir)/slibc/
 
 install_doc: doc
-	install -d $(DESTDIR)$(mandir)/man3/
-	install -m 444 -D doc/man/man3/* $(DESTDIR)$(mandir)/man3/
+	echo $(DESTDIR)/$(mandir)/man3/
+	install -d $(DESTDIR)/$(mandir)/man3/
+	install -m 444 -D doc/man/man3/* $(DESTDIR)/$(mandir)/man3/
 
 install: test install_devel install_doc
-	install -d $(DESTDIR)$(libdir)/
-	install -D src/$(SLIBC_LIB_SH) $(DESTDIR)$(libdir)/$(SLIBC_LIB_SH)
+	echo $(DESTDIR)/$(libdir)/
+	install -d $(DESTDIR)/$(libdir)/
+	install -D src/$(SLIBC_LIB_SH) $(DESTDIR)/$(libdir)/$(SLIBC_LIB_SH)
+	install -D src/$(SLIBC_LIB_CPP_SH) $(DESTDIR)$(libdir)/$(SLIBC_LIB_CPP_SH)	
 
 # build targets
 tests_slibc: slibc

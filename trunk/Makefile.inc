@@ -25,7 +25,12 @@ libdir.x86_64 = /usr/lib64
 libdir.i686   = /usr/lib
 
 MACHINE := $(shell uname -m)
+SYSTEM := $(shell ./checkdistro.sh)
 
+ifneq ($(SYSTEM),debian)
 libdir = $(libdir.$(MACHINE))
+else
+libdir = $(libdir.i686)
+endif
 includedir = /usr/include/
 mandir = /usr/share/man/

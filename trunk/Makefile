@@ -36,7 +36,7 @@ slibc:
 	$(MAKE) -C src/
 
 test: slibc
-	$(MAKE) -C src/ prepare_test
+	-$(MAKE) -C src/ prepare_test
 	-$(MAKE) -C tests_slibc/ test
 	-$(MAKE) -C tests_ow/ test
 

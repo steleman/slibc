@@ -96,8 +96,11 @@ errno_t strncpy_s(char * restrict s1, rsize_t s1max, const char * restrict s2, r
 									 s1[0] = 0, 
 									 EINVAL, EINVAL);
 
+	// If s2 < n, we are going to read strlen(s2) + its terminating null byte
+	// Otherwise, we are going to read exactly n bytes
+	rsize_t s2_size = MIN(strnlen_s(s2, n) + 1, n);
 	_CONSTRAINT_VIOLATION_CLEANUP_IF(\
-		REGIONS_OVERLAP_CHECK(s1, s1max, s2, n+1), 
+		REGIONS_OVERLAP_CHECK(s1, s1max, s2, s2_size), 
 		s1[0] = 0, 
 		EINVAL, EINVAL);
 	
@@ -176,8 +179,11 @@ errno_t strncat_s(char * restrict s1,
 									 s1[0] = 0, 
 									 EINVAL, EINVAL);
 
+	// If s2 < n, we are going to read strlen(s2) + its terminating null byte
+	// Otherwise, we are going to read exactly n bytes
+	rsize_t s2_size = MIN(strnlen_s(s2, n) + 1, n);
 	_CONSTRAINT_VIOLATION_CLEANUP_IF(\
-		REGIONS_OVERLAP_CHECK(s1+s1_len, m, s2, n+1), 
+		REGIONS_OVERLAP_CHECK(s1+s1_len, m, s2, s2_size), 
 		s1[0] = 0, 
 		EINVAL, EINVAL);
 	

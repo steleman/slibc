@@ -184,13 +184,33 @@ void TestString :: test_strncpy_s_ShouldThrowException (void)
 	// ... then strcpy_s sets s1[0] to the null character.
 	CPPUNIT_ASSERT_EQUAL(0, (int)s1[0]);
 
+	// Copying shall not take place between objects that overlap
 	strcpy_s(s1, sizeof(s1), "1234"); //prepare buffer
 	CPPUNIT_ASSERT_THROW(strncpy_s(s1, sizeof(s1), s1+2, 2), RuntimeConstraintViolation);
 
-	//we expect an exception because we would write the terminating null byte into s1[2]
+	// This should work because the objects do not overlap.
 	strcpy_s(s1, sizeof(s1), "1234"); //prepare buffer
-	CPPUNIT_ASSERT_THROW(strncpy_s(s1+2, sizeof(s1)-2, s1, 2), RuntimeConstraintViolation);
-				
+	strncpy_s(s1+2, sizeof(s1)-2, s1, 2);
+	CPPUNIT_ASSERT_EQUAL(0, strcmp(s1, "1212"));
+
+	// Copying shall not take place between objects that overlap
+	strcpy_s(s1, sizeof(s1), "1234"); //prepare buffer
+	CPPUNIT_ASSERT_THROW(strncpy_s(s1+2, sizeof(s1), s1, 3), RuntimeConstraintViolation);
+	
+	// Copying shall not take place between objects that overlap
+	strcpy_s(s1, sizeof(s1), "1234"); //prepare buffer
+	s1[2] = '\0';
+	CPPUNIT_ASSERT_THROW(strncpy_s(s1+2, sizeof(s1)-2, s1, 3), RuntimeConstraintViolation);
+
+	// Because of the \0-byte our source is only 2 bytes long
+	strcpy_s(s1, sizeof(s1), "1234"); //prepare buffer
+	s1[1] = '\0';
+	strncpy_s(s1+2, sizeof(s1)-2, s1, 3);
+	CPPUNIT_ASSERT_EQUAL(s1[0], '1'); //memcmp(s1, "1\01\0\0", 5));
+	CPPUNIT_ASSERT_EQUAL(s1[1], '\0');			
+	CPPUNIT_ASSERT_EQUAL(s1[2], '1');
+	CPPUNIT_ASSERT_EQUAL(s1[3], '\0');
+
 	// this one should work
 	strncpy_s(s1+2, sizeof(s1)-2, s1, 1);
 

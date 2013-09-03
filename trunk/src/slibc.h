@@ -85,12 +85,12 @@ void slibc_call_constraint_handler(const char *msg,
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
 /// 1) check whether s1 points into the region [s1, s1+s1max)
-/// 2) check whether the last byte of s2 is inside the region [s1, s1+s1max)
+/// 2) check whether the last byte of s2 is >= s1 
 /// s1_size and s2_size specify the size of the respective buffers, the size
 /// is string_length+1 because of the terminating null byte.
 #define REGIONS_OVERLAP_CHECK(s1, s1_size, s2, s2_size)					\
 	( ((s2 >= s1) && ((char *)s2 < ((char *)s1 + s1_size))) ||			\
-	  ((s2 < s1)  && ((char *)s2 + s2_size -1 >= (char *)s1) && ((char *)s2 + s2_size -1 < (char *)s1 + s1_size) ))
+	  ((s2 < s1)  && ((char *)s2 + s2_size -1 >= (char *)s1)) )
 
 
 

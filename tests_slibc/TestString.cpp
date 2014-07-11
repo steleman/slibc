@@ -304,6 +304,11 @@ void TestString :: test_strncat_s_ShouldAppendCorrect (void)
 
 	CPPUNIT_ASSERT_EQUAL(0, strncat_s(s4, 7, "defghijklmn", 3));
 	CPPUNIT_ASSERT_EQUAL(0, strcmp(s4, "abcdef"));
+
+	char src[4] = "cat";
+	char dest[5] = "dog";
+	strncat_s(dest, sizeof(dest), src, 1);
+	CPPUNIT_ASSERT_EQUAL(string("dogc"), string(dest)); 
 }
 
 ///////////////////////////////////////////////////////

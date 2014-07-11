@@ -188,7 +188,7 @@ errno_t strncat_s(char * restrict s1,
 		EINVAL, EINVAL);
 	
 
-	strncat(s1, s2, m-1);
+	strncat(s1, s2, n);
 	// should not be necessary
 	s1[s1max-1] = '\0';
 	

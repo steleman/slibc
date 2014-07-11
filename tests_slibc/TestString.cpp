@@ -113,7 +113,12 @@ void TestString :: test_strcpy_s_ShouldThrowException (void)
 	strcpy_s(s1, sizeof(s1), "ABCD");
 	CPPUNIT_ASSERT_THROW(strcpy_s(s1+2, sizeof(s1)-2, s1), RuntimeConstraintViolation);
 
-
+	// test overlapping
+	// This has to cause a runtime constraint violation
+	// because the arguments overlap.
+	strcpy_s(s1, sizeof(s1), "ABCD");
+	CPPUNIT_ASSERT_THROW(strcpy_s(s1+1, 2, s1), 
+			     RuntimeConstraintViolation);
 }
 
 ///////////////////////////////////////////////////////
